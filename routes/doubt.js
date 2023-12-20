@@ -3,10 +3,10 @@ const express = require("express");
 const router = express.Router();
  
  
-const {teacherAuth,studentAuth,authenticate, validateCookie} = require('../middlewares/auth.js');
+const { validateCookie} = require('../middlewares/auth.js');
  
 const { HandleDoubtCreation, HandleDownvotes, HandleUpvotes, HandleViews , handleBookmarks  } = require('../controllers/doubt.js');
-router.post('/createdoubt',studentAuth,   HandleDoubtCreation);
+router.post('/createdoubt',validateCookie,   HandleDoubtCreation);
  
 router.get('/upvote/:doubtId',  validateCookie, HandleUpvotes);
 router.get('/:doubtId', HandleViews);

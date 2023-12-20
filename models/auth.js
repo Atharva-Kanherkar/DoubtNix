@@ -18,7 +18,7 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ['student', 'teacher'],
+        enum: ['student', 'teacher', 'mentor'],
         default: 'student'
     },
     questionsAsked: {
@@ -52,9 +52,68 @@ const userSchema = new Schema({
 
 });
 
-
+const mentorSchema = new Schema({
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', // Reference to the user schema
+        required: true,
+        unique: true,
+    },
+    groups: [{
+        name: {
+            type: String,
+            required: true,
+        },
+        whatsappLink: {
+            type: String,
+            required: true,
+        },
+        students: [{
+            type: Schema.Types.ObjectId,
+            ref: 'User', // Reference to the user schema (students)
+        }],
+    }],
+    experienceLevel: {
+        type: String,  
+    },
+    expertise: {
+        type: [String],  
+    },
+    availability: {
+        type: String,  
+    },
+    rating: {
+        type: Number,  
+    },
+    schedule: {
+        type: String,  
+    },
+    contact: {
+        email: {
+            type: String,
+        },
+        phone: {
+            type: String,
+        },
+        
+    },
+    achievements: [{
+        title: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+        },
+        date: {
+            type: Date,
+        },
+    }],
+  
+});
 
 const User = mongoose.model('User', userSchema);
+const Mentor = mongoose.model('Mentor', mentorSchema);
  
 
-module.exports = { User  };
+module.exports = { User, Mentor  };
