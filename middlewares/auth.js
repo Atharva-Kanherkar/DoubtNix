@@ -2,30 +2,26 @@ const jwtsecret = "255ea9029d14f1e0c10e423571c2db772ba438bee9fd3018a294cb921f416
 const jwt = require('jsonwebtoken');
 const { User } = require("../models/auth");  
 
+exports.teacherAuth = (req, res, next) => {
+    const token = req.cookies.jwt;
 
-exports.teacherAuth = (req,res,next)=>{
-    const token = req.body.jwt;
-    if(token){
-        jwt.verify(token, jwtsecret, (err,decodedtoken)=>{
-            if(err){
+    if (!token) {
+        return res.status(401).json({ message: "Not authorized, token not available" });
+    }
+
+    jwt.verify(token, jwtsecret, (err, decodedtoken) => {
+        if (err) {
+            return res.status(401).json({ message: "Not authorized" });
+        } else {
+            if (decodedtoken.role !== "teacher") {
                 return res.status(401).json({ message: "Not authorized" });
+            } else {
+                next();  
             }
-            else{
-                if (decodedtoken.role !== "teacher") {
-                    return res.status(401).json({ message: "Not authorized" })
-                  }
-                else {
-                     next();
-                }
-            }
-        })
-    }
-    else {
-        return res
-          .status(401)
-          .json({ message: "Not authorized, token not available" })
-      }
-    }
+        }
+    });
+};
+
  
     exports.studentAuth = (req, res, next) => {
        const token =  req.headers.authorization;
@@ -67,8 +63,7 @@ exports.teacherAuth = (req,res,next)=>{
             try {
                 const decoded = jwt.verify(cookie.jwt, jwtsecret);
                
-                
-                
+            
                 req.user = decoded;
                 
                 next();

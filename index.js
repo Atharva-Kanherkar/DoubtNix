@@ -11,7 +11,8 @@ app.use(cookieParser());
 app.use("/api/auth", require('./routes/auth'));
 app.use("/api/doubt", require('./routes/doubt.js'));
 app.use("/api/reply", require('./routes/reply.js'));
- 
+app.use("/api/mentor", require('./routes/mentor.js'));
+
 
 
 
