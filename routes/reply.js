@@ -6,7 +6,7 @@ const {validateCookie} = require('../middlewares/auth.js');
  
 const {HandleReplyCreation} = require('../controllers/reply.js');
  
-router.post('/createreplystudent', validateCookie, HandleReplyCreation );
+router.post('/createreply', validateCookie, HandleReplyCreation );
 router.get('/replyviews/:replyId', handleReplyViews);
 router.get('/replyupvote/:replyId',validateCookie ,handleReplyUpvotes);
 router.get('/replydownvote/:replyId', validateCookie,handleReplyDownvotes);

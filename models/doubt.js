@@ -80,11 +80,34 @@ const replySchema = new Schema({
    
 });
 
+
+const solutionSchema = new  Schema({
+    doubt: {
+        type: Schema.Types.ObjectId,
+        ref: 'DoubtCreation'
+    },
+    keyTakeAway :{
+        type : String,
+        required : true
+    },
+    codeSnippet: String,
+    pictures: [String],
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    content: String,
+
+
+
+});
  
  
 const doubtCreation = mongoose.model('doubtCreation', doubtCreationSchema);
 const Reply = mongoose.model('Reply', replySchema);
+const solution = mongoose.model('solution', solutionSchema);
+
 
 
  
-module.exports = {  doubtCreation , Reply};
+module.exports = {  doubtCreation , Reply, solution};

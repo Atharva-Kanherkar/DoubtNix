@@ -1,4 +1,5 @@
 const { User } = require("../models/auth");
+const {solution }  = require("../models/doubt");
 const bcrypt = require("bcryptjs");
 const jwtsecret = "255ea9029d14f1e0c10e423571c2db772ba438bee9fd3018a294cb921f41680398c20c";
 const jwt = require('jsonwebtoken');
@@ -104,3 +105,28 @@ exports.seeAllStudents = async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+
+
+exports.handleCreateSolution = async (req, res) =>{
+    try {
+        const { doubt, keyTakeAway,codeSnippet,pictures,user,content } = req.body;
+        const newReply = await solution.create({
+            doubt,
+            keyTakeAway,
+            codeSnippet,
+            pictures,
+            user,
+            content
+        });
+
+        res.status(201).json({
+            message: 'Solution created successfully',
+            newReply
+        });
+    } catch (err) {
+        res.status(500).json({
+            errorMessage: err.message
+        });
+    }
+
+}
