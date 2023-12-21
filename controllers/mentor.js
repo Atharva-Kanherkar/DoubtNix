@@ -1,33 +1,21 @@
-const { User, Mentor} = require("../models/auth");  
+const { User } = require("../models/auth");
 const bcrypt = require("bcryptjs");
 const jwtsecret = "255ea9029d14f1e0c10e423571c2db772ba438bee9fd3018a294cb921f41680398c20c";
 const jwt = require('jsonwebtoken');
 
-
-
-
-
-
 exports.upgradeToMentor = async (req, res) => {
     try {
         const { studentId } = req.body;
-        const {  
-            groups,// Assuming these will be populated later
+        const {
+            groups,
             experienceLevel,
             expertise,
             availability,
             schedule,
-            contact: {
-                email,
-                phone,
-            },
-            achievements: [{
-                title,
-                description,
-                date,
-            }],} = req.body;
-            
-          
+            contact: { email, phone },
+            achievements,
+        } = req.body;
+        
         const student = await User.findById(studentId);
 
         if (!student || student.role !== 'student') {
@@ -36,29 +24,16 @@ exports.upgradeToMentor = async (req, res) => {
             });
         }
 
-      
         student.role = 'mentor';
-        await student.save();
+        student.groups = groups;
+        student.experienceLevel = experienceLevel;
+        student.expertise = expertise;
+        student.availability = availability;
+        student.schedule = schedule;
+        student.contact = { email, phone };
+        student.achievements = achievements;
 
-    
-        const newMentor = await Mentor.create({
-            user: student._id, 
-            groups,// Assuming these will be populated later
-            experienceLevel,
-            expertise,
-            availability,
-            schedule,
-            contact: {
-                email,
-                phone,
-            },
-            achievements: [{
-                title,
-                description,
-                date,
-            }],
-             
-        });
+        const newMentor = await student.save();
 
         res.status(200).json({
             message: 'Student upgraded to mentor successfully.',
@@ -74,8 +49,7 @@ exports.upgradeToMentor = async (req, res) => {
 exports.createGroupForMentor = async (req, res) => {
     try {
         const { groupname, whatsappLink, studentIds } = req.body;
-
-        const { mentorId } = req; // Mentor ID retrieved from middleware
+        const { mentorId } = req;
 
         const mentor = await User.findById(mentorId);
 
@@ -83,23 +57,9 @@ exports.createGroupForMentor = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Mentor not found' });
         }
 
-        // Check if studentIds exist and is an array
-        if (!Array.isArray(studentIds) || studentIds.length === 0) {
-            return res.status(400).json({ success: false, message: 'No valid student IDs provided' });
-        }
+        // Validating studentIds
+        // ...
 
-        const studentsExist = await User.find({ _id: { $in: studentIds } });
-        const invalidStudentIds = studentIds.filter(id => !studentsExist.map(student => String(student._id)).includes(String(id)));
-
-        if (invalidStudentIds.length > 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid student IDs provided',
-                invalidStudentIds
-            });
-        }
-
-        // Ensure mentor.groups is initialized as an array
         mentor.groups = mentor.groups || [];
 
         const newGroup = {
@@ -113,6 +73,33 @@ exports.createGroupForMentor = async (req, res) => {
         await mentor.save();
 
         res.status(201).json({ success: true, message: 'Group created successfully', mentor });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+exports.seeAllStudents = async (req, res) => {
+    try {
+        const { mentorId } = req;
+        const mentor = await User.findById(mentorId).populate({
+            path: 'groups.students',
+            select: 'name email',
+        });
+
+        if (!mentor) {
+            return res.status(404).json({ success: false, message: 'Mentor not found' });
+        }
+
+        const allStudents = mentor.groups.reduce((students, group) => {
+            students.push(...group.students);
+            return students;
+        }, []);
+
+        res.status(200).json({
+            success: true,
+            message: 'All students under the mentor',
+            students: allStudents,
+        });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }

@@ -49,16 +49,6 @@ const userSchema = new Schema({
     accessToken: {
         type: String,
     },
-
-});
-
-const mentorSchema = new Schema({
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User', // Reference to the user schema
-        required: true,
-        unique: true,
-    },
     groups: [{
         name: {
             type: String,
@@ -109,11 +99,13 @@ const mentorSchema = new Schema({
             type: Date,
         },
     }],
-  
+
 });
 
-const User = mongoose.model('User', userSchema);
-const Mentor = mongoose.model('Mentor', mentorSchema);
  
 
-module.exports = { User, Mentor  };
+const User = mongoose.model('User', userSchema);
+ 
+ 
+
+module.exports = { User   };
