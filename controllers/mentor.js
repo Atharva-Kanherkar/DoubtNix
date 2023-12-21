@@ -4,6 +4,10 @@ const jwtsecret = "255ea9029d14f1e0c10e423571c2db772ba438bee9fd3018a294cb921f416
 const jwt = require('jsonwebtoken');
 
 
+
+
+
+
 exports.upgradeToMentor = async (req, res) => {
     try {
         const { studentId } = req.body;
@@ -64,5 +68,52 @@ exports.upgradeToMentor = async (req, res) => {
         res.status(500).json({
             error: error.message
         });
+    }
+};
+
+exports.createGroupForMentor = async (req, res) => {
+    try {
+        const { groupname, whatsappLink, studentIds } = req.body;
+
+        const { mentorId } = req; // Mentor ID retrieved from middleware
+
+        const mentor = await User.findById(mentorId);
+
+        if (!mentor) {
+            return res.status(404).json({ success: false, message: 'Mentor not found' });
+        }
+
+        // Check if studentIds exist and is an array
+        if (!Array.isArray(studentIds) || studentIds.length === 0) {
+            return res.status(400).json({ success: false, message: 'No valid student IDs provided' });
+        }
+
+        const studentsExist = await User.find({ _id: { $in: studentIds } });
+        const invalidStudentIds = studentIds.filter(id => !studentsExist.map(student => String(student._id)).includes(String(id)));
+
+        if (invalidStudentIds.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid student IDs provided',
+                invalidStudentIds
+            });
+        }
+
+        // Ensure mentor.groups is initialized as an array
+        mentor.groups = mentor.groups || [];
+
+        const newGroup = {
+            name: groupname,
+            whatsappLink: whatsappLink,
+            students: studentIds
+        };
+
+        mentor.groups.push(newGroup);
+
+        await mentor.save();
+
+        res.status(201).json({ success: true, message: 'Group created successfully', mentor });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
     }
 };

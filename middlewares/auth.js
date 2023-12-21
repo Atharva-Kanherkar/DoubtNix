@@ -75,4 +75,36 @@ exports.teacherAuth = (req, res, next) => {
             }
         }
     };
+    exports.isAMentor = async (req, res, next) => {
+        const cookie = req.cookies;
+        if (!cookie.jwt) {
+            res.status(401).json({
+                message: "Not authorized"
+            });
+        } else {
+            try {
+                const decoded = jwt.verify(cookie.jwt, jwtsecret);
+                if (decoded.role !== 'mentor') {
+                    res.status(401).json({
+                        message: "Not authorized"
+                    });
+                }
+    
+                if (decoded.id) {
+                    req.mentorId = decoded.id; // Set the mentor ID from the decoded JWT payload
+                    req.user = decoded;
+                    next();
+                } else {
+                    res.status(401).json({
+                        message: "Mentor ID not found in token"
+                    });
+                }
+            } catch (error) {
+                res.status(401).json({
+                    message: "Invalid token",
+                    error: error.message
+                });
+            }
+        }
+    };
     

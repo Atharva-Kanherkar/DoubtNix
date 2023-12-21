@@ -8,7 +8,6 @@ router.route("/register").post(handleUserSignUp);
 router.route("/login").post(handleUserLogin);
 router.route("/deleteUser").delete(teacherAuth,deleteUser);
 const {HandleReplyCreation} = require('../controllers/reply.js');
- 
 router.post('/createreply', validateCookie, HandleReplyCreation );
  
  
