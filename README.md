@@ -30,6 +30,8 @@ DoubtNix is an API powering a coding doubt-solving web application, facilitating
 ## Usage
 Developers can integrate this API into their web or mobile applications for doubt-solving functionalities. For detailed API documentation outlining endpoints, request formats, and responses, please refer to [Link will be added soon].
 
+---
+
 ## Contributions
 Contributions and suggestions for improvements are welcome! Fork the repository and submit pull requests. *Still in development!*
 
